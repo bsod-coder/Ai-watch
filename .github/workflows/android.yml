@@ -35,7 +35,26 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Unit tests
-        run: ./gradlew test --stacktrace
+        run: |
+          set -o pipefail
+          ./gradlew test --stacktrace 2>&1 | tee /tmp/gradle-test.log
+
+      # The Actions log viewer is not always reachable from every environment,
+      # so surface the tail of a failing build on the PR itself.
+      - name: Report failure on the PR
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          {
+            echo '### `./gradlew test` failed'
+            echo
+            echo '```'
+            tail -n 120 /tmp/gradle-test.log 2>/dev/null || echo '(no log captured)'
+            echo '```'
+          } > /tmp/report.md
+          gh pr comment "$PR_NUMBER" --body-file /tmp/report.md --repo "$GITHUB_REPOSITORY"
 
   # ------------------------------------------------------------------- build
   build:
@@ -99,7 +118,24 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Assemble release APKs
-        run: ./gradlew :${{ matrix.target.module }}:assembleRelease --stacktrace
+        run: |
+          set -o pipefail
+          ./gradlew :${{ matrix.target.module }}:assembleRelease --stacktrace 2>&1 | tee /tmp/gradle-build.log
+
+      - name: Report failure on the PR
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          {
+            echo "### \`:app:assembleRelease\` failed for **${{ matrix.target.label }}**"
+            echo
+            echo '```'
+            tail -n 120 /tmp/gradle-build.log 2>/dev/null || echo '(no log captured)'
+            echo '```'
+          } > /tmp/report.md
+          gh pr comment "$PR_NUMBER" --body-file /tmp/report.md --repo "$GITHUB_REPOSITORY"
 
       - name: Show what was produced
         run: ls -lh ${{ matrix.target.module }}/build/outputs/apk/release/

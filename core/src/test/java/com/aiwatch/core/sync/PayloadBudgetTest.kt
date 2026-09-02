@@ -73,13 +73,13 @@ class PayloadBudgetTest {
     @Test
     fun `matches a linear scan across many sizes`() {
         // The binary search must agree with the obvious O(n) answer everywhere.
+        // Starts at 7, not 0: a zero budget violates the documented precondition
+        // and is covered by `rejects a non-positive budget` instead.
         val items = (1..40).toList()
-        for (budget in 0..420 step 7) {
-            val expected = items.takeWhile { true }.let { all ->
-                var count = 0
-                while (count < all.size && (count + 1) * 10 <= budget) count++
-                all.take(count)
-            }
+        for (budget in 7..420 step 7) {
+            var count = 0
+            while (count < items.size && (count + 1) * 10 <= budget) count++
+            val expected = items.take(count)
             val actual = PayloadBudget.largestPrefixThatFits(items, budget, measure)
             assertEquals("budget=$budget", expected, actual)
         }
