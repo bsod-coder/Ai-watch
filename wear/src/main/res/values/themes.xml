@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Wear OS themes are dark by design; Compose draws everything else.
+      windowSwipeToDismiss is left at its default so the system back-swipe
+      still pops our own back stack first.
+    -->
+    <style name="Theme.AiWatch.Wear" parent="android:Theme.DeviceDefault">
+        <item name="android:windowBackground">@color/wear_background</item>
+        <item name="android:colorBackground">@color/wear_background</item>
+    </style>
+</resources>

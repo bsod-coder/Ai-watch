@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AiWatch</string>
+
+    <string name="tab_key">Key</string>
+    <string name="tab_models">Models</string>
+    <string name="tab_sync">Watch</string>
+
+    <string name="key_title">OpenRouter key</string>
+    <string name="key_subtitle">Stored on this device and pushed to your watch. It is never sent anywhere except OpenRouter.</string>
+    <string name="key_field_label">API key</string>
+    <string name="key_field_placeholder">sk-or-v1-…</string>
+    <string name="key_show">Show key</string>
+    <string name="key_hide">Hide key</string>
+    <string name="key_save">Save key</string>
+    <string name="key_saved">Key saved</string>
+    <string name="key_test">Test connection</string>
+    <string name="key_testing">Checking…</string>
+    <string name="key_valid">Key accepted</string>
+    <string name="key_invalid">Key rejected</string>
+    <string name="key_clear">Remove key</string>
+    <string name="key_cleared">Key removed from this device and the watch</string>
+    <string name="key_usage">Spend so far</string>
+    <string name="key_tier_free">Free tier</string>
+    <string name="key_tier_paid">Paid tier</string>
+    <string name="key_get_one">Get a key at openrouter.ai/keys</string>
+
+    <string name="models_title">Models</string>
+    <string name="models_subtitle">These are the models your watch will offer. Order sets the default.</string>
+    <string name="models_empty_title">No models yet</string>
+    <string name="models_empty_body">Paste a slug such as deepseek/deepseek-v4-flash-0731, or pull the catalogue from OpenRouter.</string>
+    <string name="models_add">Add</string>
+    <string name="models_add_manual">Type a model id</string>
+    <string name="models_browse">Browse catalogue</string>
+    <string name="models_browsing">Loading catalogue…</string>
+    <string name="models_search">Search models</string>
+    <string name="models_free">Free</string>
+    <string name="models_default">Default</string>
+    <string name="models_make_default">Make default</string>
+    <string name="models_remove">Remove</string>
+    <string name="models_count">%1$d models</string>
+    <string name="models_already_added">Already in your list</string>
+    <string name="models_removed">Removed</string>
+    <string name="models_added">Added %1$s</string>
+    <string name="models_context">%1$s tokens</string>
+    <string name="models_test">Send a test prompt</string>
+
+    <string name="sync_title">Your watch</string>
+    <string name="sync_subtitle">Settings travel over the Wear Data Layer, so the watch keeps working even when this app is closed.</string>
+    <string name="sync_send">Send to watch</string>
+    <string name="sync_sending">Sending…</string>
+    <string name="sync_connected">Connected</string>
+    <string name="sync_not_connected">No watch connected</string>
+    <string name="sync_not_connected_body">Pair the watch in the Wear OS app, then send again. The config is stored until a watch appears.</string>
+    <string name="sync_last">Last synced %1$s</string>
+    <string name="sync_never">Never synced</string>
+    <string name="sync_dropped">List was too large for the Data Layer — kept the first %1$d models.</string>
+    <string name="sync_needs_key">Add a key before syncing</string>
+    <string name="sync_needs_models">Add at least one model before syncing</string>
+    <string name="sync_checklist">Checklist</string>
+    <string name="sync_item_key">API key set</string>
+    <string name="sync_item_models">At least one model</string>
+    <string name="sync_item_peer">Watch reachable</string>
+
+    <string name="settings_defaults">Generation defaults</string>
+    <string name="settings_temperature">Temperature</string>
+    <string name="settings_max_tokens">Max tokens</string>
+    <string name="settings_system">System prompt</string>
+    <string name="settings_system_hint">Optional. Sent as the first message of every watch conversation.</string>
+
+    <string name="common_error_network">No connection to OpenRouter</string>
+    <string name="common_close">Close</string>
+    <string name="common_cancel">Cancel</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Graphite + sage. Deliberately low chroma: one muted accent, warm neutrals. -->
+    <color name="phone_background">#F3F1ED</color>
+    <color name="phone_surface">#FBFAF7</color>
+    <color name="phone_accent">#4E7268</color>
+    <color name="phone_icon_foreground">#8FAEA4</color>
+    <color name="phone_icon_background">#16171A</color>
+</resources>

@@ -1,0 +1,22 @@
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Module build output
+**/build/
+**/.kotlin/
+
+# Signing material must never be committed
+*.jks
+*.keystore
+keystore.properties
+
+# Local verification scratch space
+/verify-out/

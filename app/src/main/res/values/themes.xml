@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      A plain platform theme: Compose draws the entire UI, so the XML theme only
+      has to get the window chrome right. Using android:Theme.Material avoids a
+      dependency on the Material Components library.
+    -->
+    <style name="Theme.AiWatch.Phone" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/phone_background</item>
+        <item name="android:statusBarColor">@color/phone_background</item>
+        <item name="android:navigationBarColor">@color/phone_background</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>

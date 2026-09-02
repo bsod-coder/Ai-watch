@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Speech bubble, kept inside the 72dp adaptive-icon safe zone. -->
+    <path
+        android:fillColor="@color/phone_icon_foreground"
+        android:pathData="M36,30 L72,30 A12,12 0 0 1 84,42 L84,60 A12,12 0 0 1 72,72 L53,72 L39,84 L39,72 L36,72 A12,12 0 0 1 24,60 L24,42 A12,12 0 0 1 36,30 Z" />
+
+    <!-- Three dots knocked out in the background colour. -->
+    <path
+        android:fillColor="@color/phone_icon_background"
+        android:pathData="M40,51 a4,4 0 1 1 8,0 a4,4 0 1 1 -8,0 z" />
+    <path
+        android:fillColor="@color/phone_icon_background"
+        android:pathData="M50,51 a4,4 0 1 1 8,0 a4,4 0 1 1 -8,0 z" />
+    <path
+        android:fillColor="@color/phone_icon_background"
+        android:pathData="M60,51 a4,4 0 1 1 8,0 a4,4 0 1 1 -8,0 z" />
+</vector>

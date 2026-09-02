@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AiWatch</string>
+
+    <string name="home_title">New chat</string>
+    <string name="home_history">History</string>
+    <string name="home_no_models">No models</string>
+    <string name="home_no_models_body">Open AiWatch on your phone and send a config to this watch.</string>
+    <string name="home_requesting">Asking your phone…</string>
+    <string name="home_retry">Ask the phone again</string>
+    <string name="home_phone_not_found">No phone in range</string>
+    <string name="home_no_key">No key on the watch</string>
+
+    <string name="chat_you">You</string>
+    <string name="chat_thinking">Thinking…</string>
+    <string name="chat_speak">Speak</string>
+    <string name="chat_type">Type</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_hint">Ask anything</string>
+    <string name="chat_stop">Stop</string>
+    <string name="chat_empty">Say something to begin</string>
+    <string name="chat_no_mic">No speech recogniser on this watch</string>
+
+    <string name="history_title">History</string>
+    <string name="history_empty">Nothing saved yet</string>
+    <string name="history_delete">Delete</string>
+    <string name="history_deleted">Conversation deleted</string>
+    <string name="history_clear_all">Clear all</string>
+    <string name="history_turns">%1$d</string>
+
+    <string name="models_title">Choose a model</string>
+
+    <string name="back">Back</string>
+</resources>
