@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Advertised so the phone companion can detect this watch app. -->
+    <string-array name="android_wear_capabilities" translatable="false">
+        <item>ai_watch_app</item>
+    </string-array>
+</resources>

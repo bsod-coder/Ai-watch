@@ -17,6 +17,11 @@ import kotlinx.coroutines.tasks.await
 object WatchSync {
 
     suspend fun sendConfig(context: Context, apiKey: String, models: List<ModelEntry>) {
+        val link = WatchConnection.current(context)
+        if (!link.connected) {
+            error("Not connected")
+        }
+
         val config = WatchConfig(apiKey = apiKey, models = models)
         val request = PutDataMapRequest.create(AiWatchPaths.CONFIG_PATH).apply {
             dataMap.putString(AiWatchPaths.KEY_PAYLOAD, AiWatchJson.encode(config))
