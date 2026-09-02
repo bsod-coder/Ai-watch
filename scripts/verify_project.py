@@ -704,6 +704,59 @@ def check_no_break_in_lambda() -> None:
         raise AssertionError("\n    " + "\n    ".join(sorted(set(problems))))
 
 
+def check_padding_values_overloads() -> None:
+    """
+    PaddingValues has exactly three overloads: (all), (horizontal, vertical) and
+    (start, top, end, bottom). Mixing `horizontal` with `top`/`bottom` compiles
+    against none of them and fails with an unhelpful "none of the following
+    candidates is applicable".
+    """
+    call = re.compile(r"PaddingValues\s*\(([^)]*)\)")
+    hv = {"horizontal", "vertical"}
+    steb = {"start", "top", "end", "bottom"}
+
+    problems = []
+    for path in kt_files():
+        text = mask_comments_and_strings(path.read_text(encoding="utf-8"))
+        for match in call.finditer(text):
+            args = set(re.findall(r"(\w+)\s*=", match.group(1)))
+            if args & hv and args & steb:
+                line = text.count("\n", 0, match.start()) + 1
+                problems.append(f"{rel(path)}:{line} PaddingValues({', '.join(sorted(args))})")
+    if problems:
+        raise AssertionError("\n    " + "\n    ".join(sorted(set(problems))))
+
+
+# Receivers whose type is one of our own, so their members must exist here.
+KNOWN_RECEIVERS = ("store", "repository", "repo", "api", "viewModel", "vm")
+
+
+def check_known_receiver_methods_exist() -> None:
+    """
+    Flags `store.foo()` / `viewModel.foo()` style calls where `foo` is not
+    declared anywhere in the project. This is the bug class a capitalised-call
+    check cannot see: a lowercase method renamed in one place but not the others.
+    """
+    functions: set[str] = set()
+    for path in kt_files():
+        for match in DECL_PATTERN.finditer(path.read_text(encoding="utf-8")):
+            functions.add(match.group("name"))
+
+    call = re.compile(
+        r"\b(" + "|".join(KNOWN_RECEIVERS) + r")\.([a-z]\w*)\s*(?:\(|\{)"
+    )
+    problems = []
+    for path in kt_files():
+        text = mask_comments_and_strings(path.read_text(encoding="utf-8"))
+        for match in call.finditer(text):
+            method = match.group(2)
+            if method not in functions:
+                line = text.count("\n", 0, match.start()) + 1
+                problems.append(f"{rel(path)}:{line} {match.group(1)}.{method}()")
+    if problems:
+        raise AssertionError("\n    " + "\n    ".join(sorted(set(problems))))
+
+
 # --------------------------------------------------------------------- helper
 
 
@@ -731,6 +784,8 @@ def main() -> int:
     check("R.string.* references resolve", check_kotlin_string_resources)
     check("Internal imports resolve", check_internal_imports_resolve)
     check("Capitalised call sites resolve", check_composable_calls_resolve)
+    check("Known-receiver methods exist", check_known_receiver_methods_exist)
+    check("PaddingValues overloads are valid", check_padding_values_overloads)
     check("GitHub workflows parse", check_workflows_parse)
     print("-" * 46)
 

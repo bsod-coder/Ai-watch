@@ -53,7 +53,11 @@ class ConfigStore(private val context: Context) {
     /** Stores a config that arrived from the other device, verbatim. */
     suspend fun applyRemote(config: SyncConfig) = write(config)
 
-    suspend fun setLastSynced(at: Long) {
+    /**
+     * Records when this device last sent or received a config. Named to match the
+     * [lastSyncedAt] property it backs.
+     */
+    suspend fun setLastSyncedAt(at: Long) {
         context.aiWatchConfigStore.edit { prefs -> prefs[KEY_LAST_SYNCED_AT] = at }
     }
 

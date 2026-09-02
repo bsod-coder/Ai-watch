@@ -41,7 +41,7 @@ fun HomeScreen(state: WearUiState, viewModel: WearViewModel) {
         ScalingLazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = listState,
-            contentPadding = PaddingValues(horizontal = 10.dp, top = 36.dp, bottom = 28.dp),
+            contentPadding = PaddingValues(start = 10.dp, top = 36.dp, end = 10.dp, bottom = 28.dp),
         ) {
             item { WatchHeading("New chat") }
 
