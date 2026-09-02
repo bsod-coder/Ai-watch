@@ -11,6 +11,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  # Lets a failed run post the tail of its Gradle log to the pull request.
+  pull-requests: write
+
 env:
   JAVA_VERSION: "17"
 
