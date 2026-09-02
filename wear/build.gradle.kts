@@ -62,9 +62,9 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core")
 
     // Wear-specific Compose Material (different from phone Material3)
-    implementation("androidx.wear.compose:wear-compose-material:1.4.0")
-    implementation("androidx.wear.compose:wear-compose-navigation:1.4.0")
-    implementation("androidx.wear.compose:wear-compose-foundation:1.4.0")
+    implementation("androidx.wear.compose:wear-compose-material:1.6.2")
+    implementation("androidx.wear.compose:wear-compose-navigation:1.6.2")
+    implementation("androidx.wear.compose:wear-compose-foundation:1.6.2")
     implementation("androidx.wear:wear:1.3.0")
 
     implementation("com.google.android.gms:play-services-wearable:18.2.0")
