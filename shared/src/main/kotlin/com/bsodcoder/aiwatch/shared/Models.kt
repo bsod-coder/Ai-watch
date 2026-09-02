@@ -30,6 +30,9 @@ object AiWatchPaths {
     /** DataItem path used for phone -> watch config sync. */
     const val CONFIG_PATH = "/aiwatch/config"
     const val KEY_PAYLOAD = "payload"
+
+    /** Wear capability advertised by the watch app so the phone can detect it. */
+    const val CAPABILITY = "ai_watch_app"
 }
 
 object AiWatchJson {
