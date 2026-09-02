@@ -124,10 +124,14 @@ class OpenRouterClient(
                         }
                         val assembler = SseFrameAssembler()
                         var finished = false
+                        // No break inside a lambda here: non-local break and
+                        // continue from inline lambdas is experimental in Kotlin.
                         while (!finished) {
-                            val line = source.readUtf8Line() ?: run {
-                                assembler.flush()?.let { forward(bridge, it) }
-                                break
+                            val line = source.readUtf8Line()
+                            if (line == null) {
+                                assembler.flush()?.let { tail -> forward(bridge, tail) }
+                                finished = true
+                                continue
                             }
                             val frame = assembler.onLine(line) ?: continue
                             if (SseFrameAssembler.isDone(frame)) {

@@ -579,6 +579,131 @@ def check_composable_calls_resolve() -> None:
         raise AssertionError(f"{len(unique)} unresolved call site(s):\n    " + "\n    ".join(unique))
 
 
+def mask_comments_and_strings(text: str) -> str:
+    """
+    Replaces comment and string contents with spaces, preserving length so byte
+    offsets still align with the parse tree. Handles // and /* */ comments and
+    both "..." and triple-quoted strings.
+    """
+    out = list(text)
+    i = 0
+    n = len(text)
+
+    def blank(start: int, end: int) -> None:
+        for index in range(start, min(end, n)):
+            if out[index] != "\n":
+                out[index] = " "
+
+    while i < n:
+        two = text[i:i + 2]
+        if two == "//":
+            end = text.find("\n", i)
+            end = n if end < 0 else end
+            blank(i, end)
+            i = end
+        elif two == "/*":
+            end = text.find("*/", i + 2)
+            end = n if end < 0 else end + 2
+            blank(i, end)
+            i = end
+        elif text.startswith('"""', i):
+            end = text.find('"""', i + 3)
+            end = n if end < 0 else end + 3
+            blank(i, end)
+            i = end
+        elif text[i] == '"':
+            j = i + 1
+            while j < n:
+                if text[j] == "\\":
+                    j += 2
+                    continue
+                if text[j] == '"':
+                    j += 1
+                    break
+                if text[j] == "\n":
+                    break
+                j += 1
+            blank(i, j)
+            i = j
+        else:
+            i += 1
+    return "".join(out)
+
+
+def check_no_break_in_lambda() -> None:
+    """
+    `break`/`continue` inside an inline lambda is an experimental Kotlin feature
+    and fails to compile without an opt-in flag. It is easy to write by accident
+    in a `?: run { ... break }` tail, and the compiler message is cryptic.
+
+    Locates the keywords by regex and uses the tree-sitter AST for the exact byte
+    ranges of lambda bodies, loops, strings and comments.
+    """
+    try:
+        import tree_sitter_kotlin
+        from tree_sitter import Language, Parser
+    except ImportError:
+        warnings.append("tree-sitter-kotlin missing; break-in-lambda check skipped")
+        return
+
+    language = Language(tree_sitter_kotlin.language())
+    try:
+        parser = Parser(language)
+    except TypeError:
+        parser = Parser()
+        parser.set_language(language)
+
+    loops = {"while_statement", "for_statement", "do_while_statement"}
+    keyword = re.compile(r"\b(break|continue)\b")
+
+    problems = []
+    for path in kt_files():
+        text = path.read_text(encoding="utf-8")
+        tree = parser.parse(text.encode("utf-8"))
+
+        lambdas, loop_ranges = [], []
+        stack = [tree.root_node]
+        while stack:
+            node = stack.pop()
+            if node.type == "lambda_literal":
+                lambdas.append((node.start_byte, node.end_byte))
+            elif node.type in loops:
+                loop_ranges.append((node.start_byte, node.end_byte))
+            stack.extend(node.children)
+
+        # tree-sitter's comment coverage for this grammar is incomplete, so mask
+        # comments and strings textually instead. Offsets are preserved so the
+        # masked positions still line up with the AST ranges.
+        searchable = mask_comments_and_strings(text)
+
+        def innermost(ranges, pos):
+            best = None
+            for start, end in ranges:
+                if start <= pos < end and (best is None or end - start < best[1] - best[0]):
+                    best = (start, end)
+            return best
+
+        for match in keyword.finditer(searchable):
+            pos = match.start()
+            lam = innermost(lambdas, pos)
+            if lam is None:
+                continue
+            loop = innermost(loop_ranges, pos)
+            # Both ranges contain `pos`, so one nests inside the other. The jump
+            # is legal only when the loop is the innermost of the two, i.e. the
+            # lambda is the loop's own body. If the lambda is innermost, the jump
+            # tries to leave it -- the experimental case.
+            lambda_is_innermost = loop is None or (
+                loop[0] <= lam[0] and lam[1] <= loop[1]
+            )
+            if lambda_is_innermost:
+                line = text.count("\n", 0, pos) + 1
+                problems.append(f"{rel(path)}:{line} '{match.group(1)}' inside a lambda")
+
+    if problems:
+        raise AssertionError("\n    " + "\n    ".join(sorted(set(problems))))
+
+
 # --------------------------------------------------------------------- helper
 
 
@@ -593,6 +718,7 @@ def main() -> int:
     print("AiWatch project checks")
     print("-" * 46)
     check("Kotlin sources parse (tree-sitter)", check_kotlin_parses)
+    check("No break/continue inside lambdas", check_no_break_in_lambda)
     check("XML resources and manifests parse", check_xml_parses)
     check("Gradle delimiters balanced", check_gradle_delimiters_balanced)
     check("Version catalog references resolve", check_catalog_references)
