@@ -60,8 +60,6 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
-
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 

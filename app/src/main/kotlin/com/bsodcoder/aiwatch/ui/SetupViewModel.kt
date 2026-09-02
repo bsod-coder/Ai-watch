@@ -10,10 +10,8 @@ import com.bsodcoder.aiwatch.data.WatchSync
 import com.bsodcoder.aiwatch.shared.ModelEntry
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 enum class DeliveryStatus(val label: String) {
@@ -26,25 +24,33 @@ enum class DeliveryStatus(val label: String) {
     NotConnected("Not connected")
 }
 
-data class SetupUiState(
-    val apiKey: String = "",
-    val models: List<ModelEntry> = emptyList(),
-    val watchConnected: Boolean = false,
-    val watchNames: List<String> = emptyList(),
-    val delivery: DeliveryStatus = DeliveryStatus.Empty,
-    val errorMessage: String? = null
-) {
-    val canSend: Boolean
-        get() = delivery == DeliveryStatus.Ready ||
-            delivery == DeliveryStatus.Failed ||
-            delivery == DeliveryStatus.Success
-}
-
-private sealed interface SendState {
+sealed interface SendState {
     data object Idle : SendState
     data object Sending : SendState
     data object Success : SendState
     data class Error(val message: String) : SendState
+}
+
+fun deliveryStatus(
+    apiKey: String,
+    models: List<ModelEntry>,
+    send: SendState,
+    watchConnected: Boolean
+): DeliveryStatus {
+    return when (send) {
+        SendState.Sending -> DeliveryStatus.Sending
+        SendState.Success -> DeliveryStatus.Success
+        is SendState.Error -> DeliveryStatus.Failed
+        SendState.Idle -> {
+            val filled = listOf(apiKey.isNotBlank(), models.isNotEmpty()).count { it }
+            when {
+                filled == 0 -> DeliveryStatus.Empty
+                filled == 1 -> DeliveryStatus.Partial
+                !watchConnected -> DeliveryStatus.NotConnected
+                else -> DeliveryStatus.Ready
+            }
+        }
+    }
 }
 
 class SetupViewModel(app: Application) : AndroidViewModel(app) {
@@ -52,37 +58,16 @@ class SetupViewModel(app: Application) : AndroidViewModel(app) {
     private val store = ModelStore(app)
 
     private val _apiKey = MutableStateFlow("")
-    private val _models = MutableStateFlow<List<ModelEntry>>(emptyList())
-    private val _sendState = MutableStateFlow<SendState>(SendState.Idle)
-    private val _watchLink = MutableStateFlow(WatchLinkState())
+    val apiKey: StateFlow<String> = _apiKey.asStateFlow()
 
-    val uiState: StateFlow<SetupUiState> = combine(
-        _apiKey,
-        _models,
-        _sendState,
-        _watchLink
-    ) { key, models, send, link ->
-        val filled = listOf(key.isNotBlank(), models.isNotEmpty()).count { it }
-        val delivery = when (send) {
-            SendState.Sending -> DeliveryStatus.Sending
-            SendState.Success -> DeliveryStatus.Success
-            is SendState.Error -> DeliveryStatus.Failed
-            SendState.Idle -> when {
-                filled == 0 -> DeliveryStatus.Empty
-                filled == 1 -> DeliveryStatus.Partial
-                !link.connected -> DeliveryStatus.NotConnected
-                else -> DeliveryStatus.Ready
-            }
-        }
-        SetupUiState(
-            apiKey = key,
-            models = models,
-            watchConnected = link.connected,
-            watchNames = link.names,
-            delivery = delivery,
-            errorMessage = (send as? SendState.Error)?.message
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SetupUiState())
+    private val _models = MutableStateFlow<List<ModelEntry>>(emptyList())
+    val models: StateFlow<List<ModelEntry>> = _models.asStateFlow()
+
+    private val _sendState = MutableStateFlow<SendState>(SendState.Idle)
+    val sendState: StateFlow<SendState> = _sendState.asStateFlow()
+
+    private val _watchLink = MutableStateFlow(WatchLinkState())
+    val watchLink: StateFlow<WatchLinkState> = _watchLink.asStateFlow()
 
     init {
         viewModelScope.launch {
