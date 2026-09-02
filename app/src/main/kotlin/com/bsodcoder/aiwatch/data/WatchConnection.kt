@@ -1,7 +1,7 @@
 package com.bsodcoder.aiwatch.data
 
 import android.content.Context
-import android.net.Uri
+import com.bsodcoder.aiwatch.shared.AiWatchPaths
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
@@ -26,8 +26,6 @@ data class WatchLinkState(
  */
 object WatchConnection {
 
-    private val ALL_CAPABILITIES: Uri = Uri.parse("wear://")
-
     fun observe(context: Context): Flow<WatchLinkState> = callbackFlow {
         val appContext = context.applicationContext
         val nodeClient = Wearable.getNodeClient(appContext)
@@ -44,11 +42,7 @@ object WatchConnection {
         }
 
         runCatching {
-            capabilityClient.addListener(
-                listener,
-                ALL_CAPABILITIES,
-                CapabilityClient.FILTER_REACHABLE
-            )
+            capabilityClient.addListener(listener, AiWatchPaths.CAPABILITY)
         }
 
         refresh()

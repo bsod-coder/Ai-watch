@@ -1,15 +1,12 @@
 package com.bsodcoder.aiwatch.ui
 
-import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,17 +14,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -36,16 +33,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material.icons.outlined.Key
-import androidx.compose.material.icons.outlined.Memory
-import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.Sync
-import androidx.compose.material.icons.outlined.Visibility
-import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.material.icons.outlined.Watch
-import androidx.compose.material.icons.outlined.WatchOff
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -53,7 +46,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -62,6 +54,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,6 +66,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -81,6 +75,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bsodcoder.aiwatch.R
+import com.bsodcoder.aiwatch.shared.ModelEntry
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -191,12 +187,14 @@ private fun ConnectionStatusCard(
         label = "dot"
     )
     val dotAlpha = if (connected) animatedDot else 1f
+    val watchPainter = painterResource(
+        if (connected) R.drawable.ic_watch else R.drawable.ic_watch_off
+    )
 
     StatusMiniCard(
         modifier = modifier,
         containerColor = container,
         contentColor = content,
-        icon = if (connected) Icons.Outlined.Watch else Icons.Outlined.WatchOff,
         title = if (connected) "Watch connected" else "Watch disconnected",
         subtitle = when {
             connected && names.isNotEmpty() -> names.joinToString()
@@ -213,6 +211,12 @@ private fun ConnectionStatusCard(
                             .copy(alpha = if (connected) dotAlpha else 1f)
                     )
             )
+            Spacer(Modifier.width(8.dp))
+            Icon(
+                painter = watchPainter,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
         }
     )
 }
@@ -228,37 +232,37 @@ private fun DeliveryStatusCard(
         DeliveryStatus.Empty -> Triple(
             scheme.surfaceContainerHighest,
             scheme.onSurfaceVariant,
-            Icons.Outlined.Schedule
+            Icons.Default.DateRange
         )
         DeliveryStatus.Partial -> Triple(
             scheme.secondaryContainer,
             scheme.onSecondaryContainer,
-            Icons.Outlined.Schedule
+            Icons.Default.DateRange
         )
         DeliveryStatus.Ready -> Triple(
             scheme.tertiaryContainer,
             scheme.onTertiaryContainer,
-            Icons.Filled.CheckCircle
+            Icons.Default.CheckCircle
         )
         DeliveryStatus.Sending -> Triple(
             scheme.primaryContainer,
             scheme.onPrimaryContainer,
-            Icons.Outlined.Sync
+            Icons.Default.Refresh
         )
         DeliveryStatus.Success -> Triple(
             scheme.tertiaryContainer,
             scheme.onTertiaryContainer,
-            Icons.Filled.CheckCircle
+            Icons.Default.CheckCircle
         )
         DeliveryStatus.Failed -> Triple(
             scheme.errorContainer,
             scheme.onErrorContainer,
-            Icons.Outlined.ErrorOutline
+            Icons.Default.Warning
         )
         DeliveryStatus.NotConnected -> Triple(
             scheme.errorContainer,
             scheme.onErrorContainer,
-            Icons.Outlined.WatchOff
+            Icons.Default.Warning
         )
     }
 
@@ -276,10 +280,12 @@ private fun DeliveryStatusCard(
         modifier = modifier,
         containerColor = container,
         contentColor = content,
-        icon = icon,
         title = delivery.label,
         subtitle = subtitle,
-        progress = delivery == DeliveryStatus.Sending
+        progress = delivery == DeliveryStatus.Sending,
+        leading = {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+        }
     )
 }
 
@@ -288,10 +294,9 @@ private fun StatusMiniCard(
     modifier: Modifier,
     containerColor: Color,
     contentColor: Color,
-    icon: ImageVector,
     title: String,
     subtitle: String,
-    leading: @Composable (() -> Unit)? = null,
+    leading: @Composable () -> Unit,
     progress: Boolean = false
 ) {
     ElevatedCard(
@@ -305,10 +310,6 @@ private fun StatusMiniCard(
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (leading != null) {
-                    leading()
-                    Spacer(Modifier.width(8.dp))
-                }
                 if (progress) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(16.dp),
@@ -316,15 +317,11 @@ private fun StatusMiniCard(
                         color = contentColor
                     )
                 } else {
-                    Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+                    leading()
                 }
             }
             Spacer(Modifier.height(10.dp))
-            AnimatedContent(
-                targetState = title,
-                transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(120)) },
-                label = "status-title"
-            ) { text ->
+            Crossfade(targetState = title, label = "status-title") { text ->
                 Text(
                     text = text,
                     style = MaterialTheme.typography.titleSmall,
@@ -368,7 +365,7 @@ private fun ApiKeyCard(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            Icons.Outlined.Key,
+                            Icons.Default.Lock,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSecondaryContainer
                         )
@@ -397,11 +394,8 @@ private fun ApiKeyCard(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
-                    IconButton(onClick = { showKey = !showKey }) {
-                        Icon(
-                            if (showKey) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
-                            contentDescription = if (showKey) "Hide key" else "Show key"
-                        )
+                    TextButton(onClick = { showKey = !showKey }) {
+                        Text(if (showKey) "Hide" else "Show")
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -414,7 +408,7 @@ private fun ApiKeyCard(
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun ModelsCard(
-    models: List<com.bsodcoder.aiwatch.shared.ModelEntry>,
+    models: List<ModelEntry>,
     onAdd: (String) -> Unit,
     onRemove: (String) -> Unit
 ) {
@@ -437,7 +431,7 @@ private fun ModelsCard(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            Icons.Outlined.Memory,
+                            Icons.Default.Settings,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onTertiaryContainer
                         )
@@ -548,8 +542,7 @@ private fun SendBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                shape = MaterialTheme.shapes.large,
-                colors = ButtonDefaults.buttonColors()
+                shape = MaterialTheme.shapes.large
             ) {
                 if (sending) {
                     CircularProgressIndicator(
@@ -571,6 +564,13 @@ private fun SendBar(
                             else -> "Send to Watch"
                         },
                         style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            }
+        }
+    }
+}
+         style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
