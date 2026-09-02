@@ -42,7 +42,7 @@ jobs:
       - name: Unit tests
         run: |
           set -o pipefail
-          ./gradlew test --stacktrace 2>&1 | tee /tmp/gradle-test.log
+          ./gradlew test --continue --stacktrace 2>&1 | tee /tmp/gradle-test.log
 
       # The Actions log viewer is not always reachable from every environment,
       # so surface the tail of a failing build on the PR itself.
@@ -56,7 +56,9 @@ jobs:
             echo '### `./gradlew test` failed'
             echo
             echo '```'
-            tail -n 120 /tmp/gradle-test.log 2>/dev/null || echo '(no log captured)'
+            grep -E '^e: ' /tmp/gradle-test.log | head -60 || true
+            echo '--- failing tasks ---'
+            grep -E "^> Task .* FAILED|What went wrong|^Execution failed" /tmp/gradle-test.log | head -20 || true
             echo '```'
           } > /tmp/report.md
           gh pr comment "$PR_NUMBER" --body-file /tmp/report.md --repo "$GITHUB_REPOSITORY"
@@ -125,7 +127,7 @@ jobs:
       - name: Assemble release APKs
         run: |
           set -o pipefail
-          ./gradlew :${{ matrix.target.module }}:assembleRelease --stacktrace 2>&1 | tee /tmp/gradle-build.log
+          ./gradlew :${{ matrix.target.module }}:assembleRelease --continue --stacktrace 2>&1 | tee /tmp/gradle-build.log
 
       - name: Report failure on the PR
         if: failure() && github.event_name == 'pull_request'
@@ -134,10 +136,12 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           {
-            echo "### \`:app:assembleRelease\` failed for **${{ matrix.target.label }}**"
+            echo "### assembleRelease failed for **${{ matrix.target.label }}**"
             echo
             echo '```'
-            tail -n 120 /tmp/gradle-build.log 2>/dev/null || echo '(no log captured)'
+            grep -E '^e: ' /tmp/gradle-build.log | head -60 || true
+            echo '--- failing tasks ---'
+            grep -E "^> Task .* FAILED|What went wrong|^Execution failed" /tmp/gradle-build.log | head -20 || true
             echo '```'
           } > /tmp/report.md
           gh pr comment "$PR_NUMBER" --body-file /tmp/report.md --repo "$GITHUB_REPOSITORY"
