@@ -12,39 +12,59 @@ import androidx.wear.compose.material3.dynamicColorScheme
 // a single muted teal accent. Used as the fixed fallback color scheme;
 // on watches/OSes that expose a Material You dynamic palette we prefer
 // that instead so the app matches the wearer's watch face / system theme.
+//
+// NOTE: Wear Compose Material 3's ColorScheme has a different (smaller,
+// differently-named) set of 28 parameters than the phone's
+// androidx.compose.material3.ColorScheme -- notably there is no plain
+// `surface`, `surfaceVariant`, `scrim`, `surfaceTint` or
+// `inverseSurface`/`inverseOnSurface` here, and there IS a `primaryDim` /
+// `secondaryDim` / `tertiaryDim` per color group instead. See
+// https://developer.android.com/training/wearables/compose/migrate-to-material3
+// or androidx.wear.compose.material3.ColorScheme in the library sources
+// for the authoritative parameter list -- don't guess against the phone
+// Material 3 API, they've diverged.
 private val Charcoal950 = Color(0xFF0E0F11)
 private val Charcoal900 = Color(0xFF121316)
 private val Charcoal800 = Color(0xFF1B1D21)
 private val Charcoal700 = Color(0xFF26282D)
 private val OffWhite = Color(0xFFE7E6E3)
+private val MutedGrey = Color(0xFFB8B7B4)
+private val Outline = Color(0xFF4A4C50)
 private val Accent = Color(0xFF5FA8A0)
+private val AccentDim = Color(0xFF478079)
 private val AccentContainer = Color(0xFF243B39)
 private val ErrorRed = Color(0xFFCF6679)
+private val ErrorContainer = Color(0xFF4A2328)
 
 private val AiWatchFallbackColorScheme = ColorScheme(
     primary = Accent,
-    onPrimary = Charcoal950,
+    primaryDim = AccentDim,
     primaryContainer = AccentContainer,
+    onPrimary = Charcoal950,
     onPrimaryContainer = OffWhite,
     secondary = Accent,
-    onSecondary = Charcoal950,
+    secondaryDim = AccentDim,
     secondaryContainer = Charcoal700,
+    onSecondary = Charcoal950,
     onSecondaryContainer = OffWhite,
     tertiary = Accent,
-    onTertiary = Charcoal950,
+    tertiaryDim = AccentDim,
     tertiaryContainer = Charcoal700,
+    onTertiary = Charcoal950,
     onTertiaryContainer = OffWhite,
-    background = Charcoal950,
-    onBackground = OffWhite,
-    surface = Charcoal900,
-    onSurface = OffWhite,
+    surfaceContainerLow = Charcoal900,
     surfaceContainer = Charcoal800,
     surfaceContainerHigh = Charcoal700,
-    surfaceContainerLow = Charcoal900,
+    onSurface = OffWhite,
+    onSurfaceVariant = MutedGrey,
+    outline = Outline,
+    outlineVariant = Charcoal700,
+    background = Charcoal950,
+    onBackground = OffWhite,
     error = ErrorRed,
     onError = Charcoal950,
-    errorContainer = Color(0xFF4A2328),
-    onErrorContainer = ErrorRed
+    errorContainer = ErrorContainer,
+    onErrorContainer = OffWhite
 )
 
 /**
