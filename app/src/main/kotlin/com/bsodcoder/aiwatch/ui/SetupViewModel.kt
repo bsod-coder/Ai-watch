@@ -46,7 +46,14 @@ fun deliveryStatus(
             when {
                 filled == 0 -> DeliveryStatus.Empty
                 filled == 1 -> DeliveryStatus.Partial
-                !watchConnected -> DeliveryStatus.NotConnected
+                // NOTE: previously blocked here with `!watchConnected ->
+                // DeliveryStatus.NotConnected`, which disabled the send button
+                // whenever NodeClient reported no connected node. That signal
+                // is unreliable (frequent false negatives), and DataClient
+                // queues + syncs writes on its own once a node is reachable,
+                // so gating the button on it caused sync to silently never
+                // happen. `watchConnected` is still shown as a badge in the
+                // header for information, it just no longer blocks sending.
                 else -> DeliveryStatus.Ready
             }
         }
@@ -110,12 +117,11 @@ class SetupViewModel(app: Application) : AndroidViewModel(app) {
             return
         }
         viewModelScope.launch {
-            val link = WatchConnection.current(getApplication())
-            _watchLink.value = link
-            if (!link.connected) {
-                _sendState.value = SendState.Error("Watch is not connected")
-                return@launch
-            }
+            // Note: we deliberately don't block sending on watchLink.connected.
+            // NodeClient's "connected" signal is unreliable (false negatives are
+            // common), and DataClient queues writes and syncs them automatically
+            // once a node is reachable. Blocking here previously caused sends to
+            // be silently refused even when the watch was working fine.
             _sendState.value = SendState.Sending
             runCatching {
                 WatchSync.sendConfig(getApplication(), _apiKey.value, _models.value)
