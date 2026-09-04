@@ -26,7 +26,15 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.material.*
+import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.Card
+import androidx.wear.compose.material3.CardDefaults
+import androidx.wear.compose.material3.FilledTonalButton
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.OutlinedButton
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.Text
 import com.bsodcoder.aiwatch.wear.data.MessageEntity
 
 @Composable
@@ -56,21 +64,28 @@ fun ChatScreen(
         return
     }
 
-    ScalingLazyColumn(modifier = Modifier.fillMaxWidth(), state = listState) {
-        item { Spacer(modifier = Modifier.height(4.dp)) }
-        items(messages, key = { it.id }) { message: MessageEntity ->
-            MessageBubble(message)
-        }
-        item {
-            Chip(
-                label = { Text(if (sendState is SendState.Sending) "Sending…" else "Reply") },
-                onClick = { showInput = true },
-                enabled = sendState !is SendState.Sending,
-                colors = ChipDefaults.primaryChipColors(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-            )
+    ScreenScaffold(scrollState = listState) { contentPadding ->
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            state = listState,
+            contentPadding = contentPadding
+        ) {
+            item { Spacer(modifier = Modifier.height(4.dp)) }
+            items(messages, key = { it.id }) { message: MessageEntity ->
+                MessageBubble(message)
+            }
+            item {
+                Button(
+                    onClick = { showInput = true },
+                    enabled = sendState !is SendState.Sending,
+                    colors = ButtonDefaults.buttonColors(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                ) {
+                    Text(if (sendState is SendState.Sending) "Sending…" else "Reply")
+                }
+            }
         }
     }
 }
@@ -86,11 +101,21 @@ private fun MessageBubble(message: MessageEntity) {
     ) {
         Card(
             onClick = {},
+            colors = if (isUser) {
+                CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            } else {
+                CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+            },
             modifier = Modifier.padding(horizontal = 4.dp)
         ) {
             Text(
                 text = message.content,
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (isUser) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
                 modifier = Modifier.padding(8.dp)
             )
         }
@@ -116,18 +141,21 @@ private fun MessageInput(
     ) {
         Text(
             text = "Message",
-            style = MaterialTheme.typography.caption1,
+            style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.padding(bottom = 6.dp)
         )
         BasicTextField(
             value = text,
             onValueChange = { text = it },
-            textStyle = TextStyle(color = MaterialTheme.colors.onSurface, fontSize = MaterialTheme.typography.body2.fontSize),
-            cursorBrush = SolidColor(MaterialTheme.colors.primary),
+            textStyle = TextStyle(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = MaterialTheme.typography.bodyMedium.fontSize
+            ),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colors.surface)
+                .background(MaterialTheme.colorScheme.surfaceContainer)
                 .padding(10.dp)
         )
         Row(
@@ -136,13 +164,11 @@ private fun MessageInput(
                 .padding(top = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Chip(label = { Text("Cancel") }, onClick = onDismiss, colors = ChipDefaults.secondaryChipColors())
-            Chip(
-                label = { Text("Send") },
+            OutlinedButton(onClick = onDismiss) { Text("Cancel") }
+            FilledTonalButton(
                 onClick = { onSend(text) },
-                enabled = text.isNotBlank(),
-                colors = ChipDefaults.primaryChipColors()
-            )
+                enabled = text.isNotBlank()
+            ) { Text("Send") }
         }
     }
 }

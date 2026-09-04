@@ -59,8 +59,11 @@ dependencies {
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material:material-icons-core")
 
-    // Wear-specific Compose Material (different from phone Material3)
-    implementation("androidx.wear.compose:compose-material:1.6.2")
+    // Wear Material 3 (Material You / expressive design) — replaces the
+    // old androidx.wear.compose:compose-material (Material 2) entirely.
+    // Per Google's guidance, compose-material3 is not meant to be combined
+    // with compose-material, so we don't depend on both.
+    implementation("androidx.wear.compose:compose-material3:1.6.2")
     implementation("androidx.wear.compose:compose-navigation:1.6.2")
     implementation("androidx.wear.compose:compose-foundation:1.6.2")
     implementation("androidx.wear:wear:1.3.0")
