@@ -11,7 +11,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.bsodcoder.aiwatch.wear"
+        applicationId = "com.bsodcoder.aiwatch"
         minSdk = 30
         targetSdk = 35
         versionCode = 1
