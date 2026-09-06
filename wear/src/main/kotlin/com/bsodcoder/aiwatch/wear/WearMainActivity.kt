@@ -8,8 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
@@ -44,7 +43,10 @@ class WearMainActivity : ComponentActivity() {
 private fun AiWatchApp(viewModel: ChatViewModel) {
     val navController: NavHostController = rememberSwipeDismissableNavController()
 
-    Scaffold {
+    // AppScaffold (M3) owns the app-level scroll/time-text coordination;
+    // each screen additionally wraps itself in a ScreenScaffold so the
+    // scroll indicator tracks that screen's own ScalingLazyColumn.
+    AppScaffold {
         SwipeDismissableNavHost(
             navController = navController,
             startDestination = Routes.CHAT_LIST,
